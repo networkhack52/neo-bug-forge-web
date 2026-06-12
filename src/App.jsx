@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import Editor from "@monaco-editor/react";
 
 /* ─────────────────────────────────────────────────────────────────────────────
    Neo Bug Forge  —  React Web App
@@ -580,8 +581,11 @@ function parseDiff(diff) {
 }
 
 // ── Claude API call ───────────────────────────────────────────────────────────
+const MAX_CODE_LENGTH = 5000;
+
 async function callClaude(code, errorMsg, language) {
-  const response = await fetch("https://neo-bug-forge-api.onrender.com/v1/fix/public", {
+  const API_BASE = import.meta.env.VITE_API_URL || "https://neo-bug-forge-api.onrender.com";
+  const response = await fetch(`${API_BASE}/v1/fix/public`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -630,6 +634,7 @@ export default function NeoBugForgeApp() {
   const [toast, setToast]     = useState("");
   const [loaderStep, setLoaderStep] = useState(0);
   const [copiedSnippet, setCopiedSnippet] = useState("");
+  const [validationErr, setValidationErr] = useState("");
   const [shareId]             = useState(() => Math.random().toString(36).slice(2, 8));
   const appRef                = useRef(null);
   const stepTimer             = useRef(null);
@@ -663,7 +668,15 @@ export default function NeoBugForgeApp() {
   }, [showToast]);
 
   const handleFix = useCallback(async () => {
-    if (!code.trim()) return;
+    setValidationErr("");
+    if (!code.trim()) {
+      setValidationErr("Please paste some code before submitting.");
+      return;
+    }
+    if (code.length > MAX_CODE_LENGTH) {
+      setValidationErr(`Input too large (${code.length} chars). Limit is ${MAX_CODE_LENGTH}.`);
+      return;
+    }
     setStatus("loading");
     setApiErr("");
     setResult(null);
@@ -684,6 +697,7 @@ export default function NeoBugForgeApp() {
     setCode("");
     setErrorMsg("");
     setApiErr("");
+    setValidationErr("");
   };
 
   const scrollToApp = () => appRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -784,10 +798,13 @@ export default function NeoBugForgeApp() {
                 value={code}
                 onChange={e => setCode(e.target.value)}
                 onKeyDown={e => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") handleFix(); }}
+                style={{ borderColor: validationErr && !code.trim() ? "var(--red)" : undefined }}
               />
               <div className="field-meta">
-                <span className="field-hint">Cmd+Enter to submit</span>
-                <span className="char-count">{code.length} chars</span>
+                <span className="field-hint">Paste broken code here · Ctrl+Enter to submit</span>
+                <span className="char-count" style={{ color: code.length > MAX_CODE_LENGTH ? "var(--red)" : "var(--text3)" }}>
+                  {code.length}/{MAX_CODE_LENGTH}
+                </span>
               </div>
             </div>
 
@@ -803,7 +820,12 @@ export default function NeoBugForgeApp() {
               />
             </div>
 
-            {/* Error box */}
+            {/* Validation error */}
+            {validationErr && (
+              <div className="err-box">✗ {validationErr}</div>
+            )}
+
+            {/* API error */}
             {status === "error" && (
               <div className="err-box">✗ {apiErr}</div>
             )}
