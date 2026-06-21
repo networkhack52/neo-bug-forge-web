@@ -159,6 +159,20 @@ export default function Dashboard() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { navigate("/login"); return; }
       setUser(session.user);
+
+      // After Stripe checkout, verify subscription and upgrade tier
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("upgraded") === "1") {
+        try {
+          await fetch(`${API_BASE}/v1/stripe/verify`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${session.access_token}` },
+          });
+        } catch (_) {}
+        // Clean URL
+        window.history.replaceState({}, "", "/dashboard");
+      }
+
       await loadOrCreateKey(session);
       setLoading(false);
     });
