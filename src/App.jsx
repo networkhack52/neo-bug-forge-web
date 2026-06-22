@@ -59,9 +59,47 @@ const STYLES = `
   ::-webkit-scrollbar-track { background: var(--obsidian); }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 1px; }
 
+  /* ── Announcement bar ── */
+  .announce-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 101;
+    background: var(--amber);
+    color: #000;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px 16px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .announce-bar .spots {
+    background: #000;
+    color: var(--amber);
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+  }
+  .announce-bar .announce-cta {
+    background: transparent;
+    border: 1.5px solid #000;
+    color: #000;
+    padding: 2px 10px;
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .announce-bar .announce-cta:hover { background: #00000018; }
+
   /* ── Nav ── */
   .nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    position: fixed; top: 33px; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 32px; height: 52px;
     background: rgba(8,8,8,0.92);
@@ -107,7 +145,7 @@ const STYLES = `
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 120px 24px 60px;
+    padding: 154px 24px 60px;
     position: relative;
     text-align: center;
     overflow: hidden;
@@ -706,6 +744,13 @@ export default function NeoBugForgeApp() {
     <>
       <style>{STYLES}</style>
 
+      {/* ── Announcement bar ── */}
+      <div className="announce-bar">
+        ⭐ Leave a review on the VS Code Marketplace — first 50 reviewers get Pro FREE
+        <span className="spots">37 spots left</span>
+        <a href="https://marketplace.visualstudio.com/items?itemName=neobugforge.neo-bug-forge&ssr=false#review-details" className="announce-cta">Leave Review →</a>
+      </div>
+
       {/* ── Nav ── */}
       <nav className="nav">
         <div className="nav-logo">Neo Bug<span>Forge</span></div>
@@ -729,9 +774,9 @@ export default function NeoBugForgeApp() {
           Drop your broken code and error message. Get back fixed code, a root cause analysis, a diff, and a test case — in under 3 seconds.
         </p>
         <div className="hero-badges">
-          <span className="badge amber">No signup — 10 free fixes</span>
-          <span className="badge">7 languages</span>
-          <span className="badge">Shareable links</span>
+          <span className="badge amber">⭐ Leave a review — get Pro FREE</span>
+          <span className="badge">10 free fixes · no card</span>
+          <span className="badge">VS Code extension</span>
           <span className="badge">Test case included</span>
           <span className="badge">Confidence score</span>
         </div>

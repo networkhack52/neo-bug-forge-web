@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "../supabase";
 import { useNavigate, Link } from "react-router-dom";
 
+const ADMIN_EMAIL = "ya7308312@gmail.com";
+
 const API_BASE = import.meta.env.VITE_API_URL || "https://api.neobugforge.io";
 
 const STYLES = `
@@ -253,6 +255,11 @@ export default function Dashboard() {
         <a href="https://neobugforge.io" className="nav-logo">NeoBugForge</a>
         <div className="nav-right">
           <span className="nav-email">{user?.email}</span>
+          {user?.email === ADMIN_EMAIL && (
+            <Link to="/admin" style={{ fontSize: ".8rem", fontWeight: 600, color: "#ef4444", textDecoration: "none" }}>
+              ⚙ Admin
+            </Link>
+          )}
           <button className="btn-signout" onClick={handleSignOut}>Sign out</button>
         </div>
       </nav>
