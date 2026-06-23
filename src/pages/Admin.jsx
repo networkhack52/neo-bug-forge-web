@@ -177,6 +177,7 @@ export default function Admin() {
   const [users,     setUsers]     = useState([]);
   const [fetching,  setFetching]  = useState(false);
   const [search,    setSearch]    = useState("");
+  const [copied,    setCopied]    = useState(false);
 
   // Upgrade form
   const [email,     setEmail]     = useState("");
@@ -243,6 +244,17 @@ export default function Admin() {
       setResult({ ok: false, message: err.message });
     }
     setUpgrading(false);
+  }
+
+  function exportEmails(tierFilter) {
+    const list = (tierFilter ? users.filter(u => u.tier === tierFilter) : users)
+      .map(u => u.user_email)
+      .filter(Boolean)
+      .join(", ");
+    navigator.clipboard.writeText(list).then(() => {
+      setCopied(tierFilter || "all");
+      setTimeout(() => setCopied(false), 2000);
+    });
   }
 
   async function quickUpgrade(userEmail, newTier) {
@@ -352,13 +364,24 @@ export default function Admin() {
         <div className="card">
           <div className="table-header">
             <h2>All Users</h2>
-            <button
-              className="btn-refresh"
-              onClick={() => fetchUsers()}
-              disabled={fetching}
-            >
-              {fetching ? "Loading…" : "↻ Refresh"}
-            </button>
+            <div style={{ display: "flex", gap: ".5rem", flexWrap: "wrap" }}>
+              <button className="btn-refresh" onClick={() => exportEmails(null)}>
+                {copied === "all" ? "✓ Copied!" : `⧉ Copy All Emails (${users.length})`}
+              </button>
+              <button className="btn-refresh" onClick={() => exportEmails("free")} style={{ color: "var(--muted2)" }}>
+                {copied === "free" ? "✓ Copied!" : `Free (${counts.free})`}
+              </button>
+              <button className="btn-refresh" onClick={() => exportEmails("pro")} style={{ color: "var(--cyan)" }}>
+                {copied === "pro" ? "✓ Copied!" : `Pro (${counts.pro})`}
+              </button>
+              <button
+                className="btn-refresh"
+                onClick={() => fetchUsers()}
+                disabled={fetching}
+              >
+                {fetching ? "Loading…" : "↻ Refresh"}
+              </button>
+            </div>
           </div>
 
           <input
